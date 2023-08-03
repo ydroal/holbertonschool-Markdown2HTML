@@ -12,7 +12,7 @@ import sys
 
 if __name__ == '__main__':
     args = sys.argv
-    if len(args) < 2:
+    if len(args) < 3:
       print('Usage: ./markdown2html.py README.md README.html', file=sys.stderr)
       sys.exit(1)
     elif not os.path.isfile(args[1]):
@@ -20,10 +20,4 @@ if __name__ == '__main__':
       sys.exit(1)
     else:
       sys.exit(0)
-      
-      
-      
-      
-
-
-  
+    
