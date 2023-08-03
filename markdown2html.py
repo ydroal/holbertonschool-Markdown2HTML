@@ -26,5 +26,7 @@ if __name__ == '__main__':
                     if level != 0:
                         line = line.replace('#', '').strip()
                         converted_heading = f'<h{level}>{line}</h{level}>\n'
+                    else:
+                        converted_heading = line
                     out_f.write(converted_heading)
-        sys.exit(0)
+    sys.exit(0)
