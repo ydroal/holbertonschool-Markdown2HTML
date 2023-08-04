@@ -14,6 +14,7 @@ if __name__ == '__main__':
     args = sys.argv
     list_exists = False
     ordered_list_exists = False
+    paragraph_exists = False
     
     if len(args) < 3:
         print('Usage: ./markdown2html.py README.md README.html', file=sys.stderr)
@@ -53,7 +54,18 @@ if __name__ == '__main__':
                             line += '\n</ol>'
                             ordered_list_exists = False
                         converted_markdown = f'{line}\n'
+                    elif not line.startswith(('#','- ','* ')) and line.strip() != '' and not paragraph_exists:
+                        line = f'<p>\n{line}'
+                        paragraph_exists = True
+                        if not next_line:
+                            line += '\n</p>'
+                            paragraph_exists = False
+                        else:
+                            line += '\n<br/>'
+                        converted_markdown = f'{line}\n'
                     else:
-                        converted_markdown = line + '\n'
+                        converted_markdown = line
                     out_f.write(converted_markdown)
+                if paragraph_exists:
+                    out_f.write('\n</p>\n')
     sys.exit(0)
