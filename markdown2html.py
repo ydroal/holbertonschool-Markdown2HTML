@@ -12,6 +12,8 @@ import sys
 
 if __name__ == '__main__':
     args = sys.argv
+    list_exists = False
+    
     if len(args) < 3:
         print('Usage: ./markdown2html.py README.md README.html', file=sys.stderr)
         sys.exit(1)
@@ -21,12 +23,27 @@ if __name__ == '__main__':
     else:
         with open(args[2], mode='w') as out_f:
             with open(args[1]) as in_f:
-                for line in in_f:
+                lines = in_f.readlines()
+                for i in range(len(lines)):
+                    line = lines[i].strip()
+                    if i + 1 < len(lines):
+                        next_line = lines[i + 1].strip()
+                    else:
+                        next_line = ''
                     level = line.count('#')
                     if level != 0:
-                        line = line.replace('#', '').strip()
-                        converted_heading = f'<h{level}>{line}</h{level}>\n'
+                        line = line.replace('#', '')
+                        converted_markdown = f'<h{level}>{line}</h{level}>\n'
+                    elif line.startswith('- '):
+                        line = line.replace('- ', '<li>', 1) + '</li>'
+                        if not list_exists:
+                            line = f'<ul>\n{line}'
+                            list_exists = True    
+                        if not next_line.startswith('- '):
+                            line += '\n</ul>'
+                            list_exists = False
+                        converted_markdown = f'{line}\n'
                     else:
-                        converted_heading = line
-                    out_f.write(converted_heading)
+                        converted_markdown = line + '\n'
+                    out_f.write(converted_markdown)
     sys.exit(0)
