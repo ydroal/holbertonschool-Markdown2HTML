@@ -9,6 +9,17 @@ Args:
 import os
 import sys
 
+def convert_bold(markdown_content):
+    html_content = markdown_content
+    if html_content.count('**') >= 2:
+        html_content = html_content.replace('**', '<b>', 1)
+        html_content = html_content.replace('**', '</b>', 1)
+
+    if html_content.count('__') >= 2:
+        html_content = html_content.replace('__', '<em>', 1)
+        html_content = html_content.replace('__', '</em>', 1)
+    
+    return html_content
 
 if __name__ == '__main__':
     args = sys.argv
@@ -27,7 +38,7 @@ if __name__ == '__main__':
             with open(args[1]) as in_f:
                 lines = in_f.readlines()
                 for i in range(len(lines)):
-                    line = lines[i].strip()
+                    line = convert_bold(lines[i].strip())
                     if i + 1 < len(lines):
                         next_line = lines[i + 1].strip()
                     else:
@@ -38,7 +49,7 @@ if __name__ == '__main__':
                             out_f.write('\n</p>\n')
                             paragraph_exists = False
                         line = line.replace('#', '')
-                        converted_markdown = f'<h{level}>{line}</h{level}>\n'
+                        html_content = f'<h{level}>{line}</h{level}>\n'
                     elif line.startswith('- '):
                         if paragraph_exists:
                             out_f.write('\n</p>\n')
@@ -50,7 +61,7 @@ if __name__ == '__main__':
                         if not next_line.startswith('- '):
                             line += '\n</ul>'
                             list_exists = False
-                        converted_markdown = f'{line}\n'
+                        html_content = f'{line}\n'
                     elif line.startswith('* '):
                         if paragraph_exists:
                             out_f.write('\n</p>\n')
@@ -62,19 +73,20 @@ if __name__ == '__main__':
                         if not next_line.startswith('* '):
                             line += '\n</ol>'
                             ordered_list_exists = False
-                        converted_markdown = f'{line}\n'
-                    elif not line.startswith(('#','- ','* ')) and line.strip() != '' and not paragraph_exists:
-                        line = f'<p>\n{line}'
-                        paragraph_exists = True
-                        if not next_line or next_line.startswith(('#','- ','* ')):
+                        html_content = f'{line}\n'
+                    elif not line.startswith(('#','- ','* ')) and line.strip() != '':
+                        if not paragraph_exists:
+                            line = f'<p>\n{line}'
+                            paragraph_exists = True
+                        if not next_line.strip() or next_line.startswith(('#','- ','* ')):
                             line += '\n</p>'
                             paragraph_exists = False
                         else:
                             line += '\n<br/>'
-                        converted_markdown = f'{line}\n'
+                        html_content = f'{line}\n'
                     else:
-                        converted_markdown = line
-                    out_f.write(converted_markdown)
+                        html_content = line
+                    out_f.write(html_content)
                 if paragraph_exists:
                     out_f.write('\n</p>\n')
     sys.exit(0)
