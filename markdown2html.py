@@ -34,9 +34,15 @@ if __name__ == '__main__':
                         next_line = ''
                     level = line.count('#')
                     if level != 0:
+                        if paragraph_exists:
+                            out_f.write('\n</p>\n')
+                            paragraph_exists = False
                         line = line.replace('#', '')
                         converted_markdown = f'<h{level}>{line}</h{level}>\n'
                     elif line.startswith('- '):
+                        if paragraph_exists:
+                            out_f.write('\n</p>\n')
+                            paragraph_exists = False
                         line = line.replace('- ', '<li>', 1) + '</li>'
                         if not list_exists:
                             line = f'<ul>\n{line}'
@@ -46,6 +52,9 @@ if __name__ == '__main__':
                             list_exists = False
                         converted_markdown = f'{line}\n'
                     elif line.startswith('* '):
+                        if paragraph_exists:
+                            out_f.write('\n</p>\n')
+                            paragraph_exists = False
                         line = line.replace('* ', '<li>', 1) + '</li>'
                         if not ordered_list_exists:
                             line = f'<ol>\n{line}'
@@ -57,7 +66,7 @@ if __name__ == '__main__':
                     elif not line.startswith(('#','- ','* ')) and line.strip() != '' and not paragraph_exists:
                         line = f'<p>\n{line}'
                         paragraph_exists = True
-                        if not next_line:
+                        if not next_line or next_line.startswith(('#','- ','* ')):
                             line += '\n</p>'
                             paragraph_exists = False
                         else:
