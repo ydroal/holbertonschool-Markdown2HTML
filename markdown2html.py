@@ -6,20 +6,45 @@ Args:
   The name of the Markdown file to convert
   The name of the output HTML file
 '''
+import hashlib
 import os
+import re
 import sys
 
-def convert_bold(markdown_content):
-    html_content = markdown_content
-    if html_content.count('**') >= 2:
-        html_content = html_content.replace('**', '<b>', 1)
-        html_content = html_content.replace('**', '</b>', 1)
 
-    if html_content.count('__') >= 2:
-        html_content = html_content.replace('__', '<em>', 1)
-        html_content = html_content.replace('__', '</em>', 1)
+def convert_bold(markdown_content):
+    converted_content = markdown_content
+    if converted_content.count('**') >= 2:
+        converted_content = converted_content.replace('**', '<b>', 1)
+        converted_content = converted_content.replace('**', '</b>', 1)
+
+    if converted_content.count('__') >= 2:
+        converted_content = converted_content.replace('__', '<em>', 1)
+        converted_content = converted_content.replace('__', '</em>', 1)
     
-    return html_content
+    return converted_content
+
+def hashing(match):
+    original_text = match.group(1)
+    hashed_text = hashlib.md5(original_text.encode()).hexdigest()
+    
+    return hashed_text
+
+def convert_md5(markdown_content):
+    converted_content = markdown_content
+    # re.sub関数はhashing関数をコールバック関数として呼び出す際、
+    # マッチした部分の情報を持つre.Matchオブジェクトをmatch引数として渡す
+    hashed_text = re.sub(r'\[\[(.*?)\]\]', hashing, converted_content)
+    return hashed_text
+
+def remove_c(markdown_content):
+    extracted_contents = re.findall(r'\(\(.*?\)\)', markdown_content)
+    for extracted_content in extracted_contents:
+        replaced_content = re.sub(r'[cC()]', '', extracted_content)
+        markdown_content = markdown_content.replace(extracted_content, replaced_content)
+        print (markdown_content)
+    
+    return markdown_content
 
 if __name__ == '__main__':
     args = sys.argv
@@ -39,6 +64,8 @@ if __name__ == '__main__':
                 lines = in_f.readlines()
                 for i in range(len(lines)):
                     line = convert_bold(lines[i].strip())
+                    line = convert_md5(line)
+                    line = remove_c(line)
                     if i + 1 < len(lines):
                         next_line = lines[i + 1].strip()
                     else:
