@@ -42,7 +42,6 @@ def remove_c(markdown_content):
     for extracted_content in extracted_contents:
         replaced_content = re.sub(r'[cC()]', '', extracted_content)
         markdown_content = markdown_content.replace(extracted_content, replaced_content)
-        print (markdown_content)
     
     return markdown_content
 
@@ -66,6 +65,7 @@ if __name__ == '__main__':
                     line = convert_bold(lines[i].strip())
                     line = convert_md5(line)
                     line = remove_c(line)
+                    last_line = (i == len(lines) - 1) 
                     if i + 1 < len(lines):
                         next_line = lines[i + 1].strip()
                     else:
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                         if not paragraph_exists:
                             line = f'<p>\n{line}'
                             paragraph_exists = True
-                        if not next_line.strip() or next_line.startswith(('#','- ','* ')):
+                        if not next_line.strip() or next_line.startswith(('#','- ','* ')) or last_line:
                             line += '\n</p>'
                             paragraph_exists = False
                         else:
